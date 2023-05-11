@@ -4,6 +4,8 @@ import { FaTemperatureLow, FaTint } from "react-icons/fa";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"
+import WeatherCode from "./WeatherCode";
+import WeatherInfo from "./WeatherInfo";
 
 
 const WeatherDashboard = () => {
@@ -30,7 +32,7 @@ const WeatherDashboard = () => {
     } else {
       console.error("Geolocation is not supported by this browser.");
     }
-  }, [latitude, longitude]);
+  }, []);
 
   // helper function to convert between datepicker and open meteo formats
   const formatDate = (date) => {
@@ -51,10 +53,12 @@ const WeatherDashboard = () => {
 
 
   const toggleTemperature = () => {
+    setWeatherData()
     setIsCelsius(!isCelsius);
   }; 
 
   const handleSubmit = async (event) => {
+    setWeatherData()
     event.preventDefault();
     setLoading(true);
 
@@ -63,7 +67,8 @@ const WeatherDashboard = () => {
     const unit = isCelsius ? "celsius" : "fahrenheit";
     try {
       const response = await axios.get(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&timezone=auto&current_weather=true&daily=temperature_2m_max,temperature_2m_min&start_date=${date}&end_date=${date}&temperature_unit=${unit}`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&timezone=auto&current_weather=true&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_probability_mean,windspeed_10m_max,sunrise,sunset,uv_index_max,weathercode,apparent_temperature_max,apparent_temperature_min&start_date=${date}&end_date=${date}&temperature_unit=${unit}`
+        
       );
       setWeatherData(response.data);
       setLoading(false);
@@ -135,15 +140,8 @@ const WeatherDashboard = () => {
       {error && <p>{error}</p>}
 
       {weatherData && weatherData.daily && (
-        <div>
-          <h2>Weather Information</h2>
-          <div>
-            <strong>Temperature:</strong>{" "}
-            {weatherData.daily.temperature_2m_min[0]}
-            {isCelsius ? "°C" : "°F"} -{" "}
-            {weatherData.daily.temperature_2m_max[0]}
-            {isCelsius ? "°C" : "°F"}
-          </div>
+        <div className="container mx-auto px-4 py-8">
+            <WeatherInfo info={weatherData} />
         </div>
       )}
     </div>
