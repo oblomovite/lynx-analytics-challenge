@@ -64,18 +64,6 @@ const WeatherDashboard = () => {
     setWeatherData();
     setIsCelsius(!isCelsius);
   };
-
-  // const handleVariableChange = (e) => {
-  //     const { value, checked } = e.target;
-  //     setSelectedVariables((prevSelectedVariables) => {
-  //       if (checked) {
-  //         return [...prevSelectedVariables, value];
-  //       } else {
-  //         return prevSelectedVariables.filter((variable) => variable !== value);
-  //       }
-  //     });
-  //   };
-
   const handleVariableSelection = (event) => {
     setWeatherData();
     const selectedOptions = Array.from(
@@ -142,7 +130,7 @@ const WeatherDashboard = () => {
   };
 
   return (
-    <div>
+    <div className="container inline-flex">
       <form
         onSubmit={handleSubmit}
         className="w-1/2 mx-auto mt-8 p-4 bg-gray-200 rounded-md shadow-lg"
@@ -226,7 +214,7 @@ const WeatherDashboard = () => {
       {error && <p>{error}</p>}
 
       {weatherData && selectedVariables.length > 0 && (
-        <div className="w-full h-64 px-4 py-6 sm:px-6 md:px-8 lg:px-10 xl:px-12">
+        <div className="w-full px-4 py-6 sm:px-6 md:px-8 lg:px-10 xl:px-12">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
             width={500}
