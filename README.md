@@ -1,70 +1,21 @@
-# Getting Started with Create React App
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+# Usage 
+To run the app open a terminal and cd into the project directory and run `npm start`
+## Design
+### State
+Due to time and scope constraints I decided to use simple useState hooks in React to track application state changes. `useReducer` or `React.Context` could have been used as well but given the simplicity of component architecture I opted for I felt it would be unecessisary.
+### Component Design and Architecture
+I made the decision to fold all the code into one component to save time. For a larger project I always prefer to spend more time breaking up and compartmentalizing the application so that components can be reused and reduce verbosity. Generally I would have preferred to separate the chart rendering and form and its related logic and nest them inside a stateful component but to save on time I put everything together.
+### Recharts
+I chose Recharts over D3 because Recharts seems to have better integration with React. It's less code to write the same charts. Further, d3-react-components seems to be abandoned or at least lacking maintainers.
+### CSS
+I chose tailwindcss because it's really popular and there's lots of references for easy bootstrap style css.
+## Considerations
+### Testing
+I would have liked add some function tests to simulate user interaction with React Testing Library but I wanted to maximize my time spent on the core application
+### Validation
+I added the `required` tag to each input but a more precise tooltip than the stock 'field required' would have been nice to add
+### Styling, Design and Usability
+I could have spent more time making it feel more like a dashboard. I wasn't sure the exact requirements were for the project in terms of design so I sort went with what I thought would be a meaningful use case, that is -- querying data from an API and Charting them as needed, but I needed to spend more time on design to make it prettier and more like a dashboard.
+## Improvements
+### Design
+If I had more time I would have liked to have the charts be persisted in state and new ones could be added along side previous ones. I specifically chose not to have the charts build for each of the metrics because I thought allowing the user to be able to apply multiple metrics on the same chart would be more interesting.  

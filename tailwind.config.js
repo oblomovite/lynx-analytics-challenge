@@ -15,4 +15,3 @@ module.exports = {
   plugins: [require("flowbite/plugin")],
   purge: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
 };
-

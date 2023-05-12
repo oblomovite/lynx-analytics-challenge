@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaTemperatureLow, FaTint } from "react-icons/fa";
-
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css"
-import WeatherCode from "./WeatherCode";
-import WeatherInfo from "./WeatherInfo";
+import "react-datepicker/dist/react-datepicker.css";
 
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 const WeatherDashboard = () => {
+  // define state variables
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [weatherData, setWeatherData] = useState(null);
@@ -16,6 +23,7 @@ const WeatherDashboard = () => {
   const [error, setError] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isCelsius, setIsCelsius] = useState(true);
+  const [selectedVariables, setSelectedVariables] = useState([]);
 
   // auto populate longitude and latitude using geolocation
   useEffect(() => {
@@ -39,6 +47,7 @@ const WeatherDashboard = () => {
     return date.toISOString().split("T")[0];
   };
 
+  // define state change handlers
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
@@ -51,26 +60,80 @@ const WeatherDashboard = () => {
     setLongitude(event.target.value);
   };
 
-
   const toggleTemperature = () => {
-    setWeatherData()
+    setWeatherData();
     setIsCelsius(!isCelsius);
-  }; 
+  };
 
+  // const handleVariableChange = (e) => {
+  //     const { value, checked } = e.target;
+  //     setSelectedVariables((prevSelectedVariables) => {
+  //       if (checked) {
+  //         return [...prevSelectedVariables, value];
+  //       } else {
+  //         return prevSelectedVariables.filter((variable) => variable !== value);
+  //       }
+  //     });
+  //   };
+
+  const handleVariableSelection = (event) => {
+    setWeatherData();
+    const selectedOptions = Array.from(
+      event.target.selectedOptions,
+      (option) => option.value
+    );
+    setSelectedVariables(selectedOptions);
+  };
+
+  // format open meteo data into something recharts can use 
+  const convertObjectToArrayOfObjects = (obj) => {
+    const keys = Object.keys(obj);
+    const valuesArrays = Object.values(obj);
+
+    const maxLength = Math.max(...valuesArrays.map((arr) => arr.length));
+
+    const result = Array.from({ length: maxLength }, (_, index) => {
+      const newObj = {};
+
+      keys.forEach((key, i) => {
+        const values = valuesArrays[i];
+        newObj[key] = values[index] || null;
+      });
+
+      return newObj;
+    });
+
+    return result;
+  };
+
+  // fetch open meteo data
   const handleSubmit = async (event) => {
-    setWeatherData()
+    // reset state
+    setWeatherData();
     event.preventDefault();
     setLoading(true);
-
     const date = formatDate(selectedDate);
-
     const unit = isCelsius ? "celsius" : "fahrenheit";
+
     try {
       const response = await axios.get(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&timezone=auto&current_weather=true&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_probability_mean,windspeed_10m_max,sunrise,sunset,uv_index_max,weathercode,apparent_temperature_max,apparent_temperature_min&start_date=${date}&end_date=${date}&temperature_unit=${unit}`
-        
+        "https://api.open-meteo.com/v1/forecast?",
+        {
+          params: {
+            current_weather: "false",
+            latitude: `${latitude}`,
+            longitude: `${longitude}`,
+            timezone: "auto",
+            // hourly: "temperature_2m,relativehumidity_2m,apparent_temperature,cloudcover,windspeed_10m,precipitation,snowfall,precipitation_probability,visibility,is_day,snow_depth",
+            hourly: selectedVariables.join(","), // Use the selected variables in the API request
+            start_date: `${date}`,
+            end_date: `${date}`,
+            temperature_unit: `${unit}`,
+          },
+        }
       );
-      setWeatherData(response.data);
+      const hourly = convertObjectToArrayOfObjects(response.data.hourly);
+      setWeatherData(hourly);
       setLoading(false);
     } catch (error) {
       setError("Failed to fetch weather data.");
@@ -88,6 +151,7 @@ const WeatherDashboard = () => {
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2">Latitude</label>
           <input
+            required
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             type="text"
             value={latitude}
@@ -99,6 +163,7 @@ const WeatherDashboard = () => {
             Longitude
           </label>
           <input
+            required
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             type="text"
             value={longitude}
@@ -116,7 +181,7 @@ const WeatherDashboard = () => {
             <input
               type="checkbox"
               value=""
-              class="sr-only peer"
+              className="sr-only peer"
               checked={isCelsius}
               onChange={toggleTemperature}
             />
@@ -126,6 +191,27 @@ const WeatherDashboard = () => {
               {isCelsius ? "Celsius" : "Fahrenheit"}
             </span>
           </label>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-md font-medium text-gray-700">
+            Select which weather metrics to display:
+          </label>
+          <select
+            required
+            multiple
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            onChange={handleVariableSelection}
+          >
+            <option value="temperature_2m">Temperature</option>
+            <option value="precipitation_probability">Chance of Rain</option>
+            <option value="precipitation">Precipitation</option>
+            <option value="relativehumidity_2m">Humidity</option>
+            <option value="windspeed_10m">Wind Speed</option>
+            <option value="visibility">Visibility</option>
+            <option value="cloudcover">Cloud Cover</option>
+            {/* Add more available variables */}
+          </select>
         </div>
 
         <button
@@ -139,9 +225,30 @@ const WeatherDashboard = () => {
       {loading && <p>Loading...</p>}
       {error && <p>{error}</p>}
 
-      {weatherData && weatherData.daily && (
-        <div className="container mx-auto px-4 py-8">
-            <WeatherInfo info={weatherData} />
+      {weatherData && selectedVariables.length > 0 && (
+        <div className="w-full h-64 px-4 py-6 sm:px-6 md:px-8 lg:px-10 xl:px-12">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+            width={500}
+            height={800}
+              data={weatherData}
+              margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <Tooltip />
+              <XAxis dataKey={weatherData.time} />
+              <YAxis />
+              <Legend />
+              {selectedVariables.map((variable, index) => (
+                <Line
+                  key={variable}
+                  type="monotone"
+                  dataKey={variable}
+                  stroke={`#${(index + 1) * 333}`}
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       )}
     </div>
