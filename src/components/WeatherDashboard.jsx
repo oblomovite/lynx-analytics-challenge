@@ -94,6 +94,19 @@ const WeatherDashboard = () => {
     return result;
   };
 
+  // add date restrictions based on open meteo api
+  const isDateDisabled = (date) => {
+    const currentDate = new Date();
+    const fifteenDaysFromNow = new Date();
+    fifteenDaysFromNow.setDate(currentDate.getDate() + 15);
+
+    const eightMonthsAgo = new Date();
+    eightMonthsAgo.setMonth(currentDate.getMonth() - 8);
+
+    return date > fifteenDaysFromNow || date < eightMonthsAgo;
+  };
+
+
   // fetch open meteo data
   const handleSubmit = async (event) => {
     // reset state
@@ -161,7 +174,13 @@ const WeatherDashboard = () => {
 
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2">Date</label>
-          <DatePicker selected={selectedDate} onChange={handleDateChange} />
+          <DatePicker
+            selected={selectedDate}
+            onChange={handleDateChange}
+            minDate={new Date(new Date().setMonth(new Date().getMonth() - 8))}
+            maxDate={new Date(new Date().setDate(new Date().getDate() + 15))}
+            filterDate={isDateDisabled}
+          />
         </div>
 
         <div className="p-4">
@@ -217,8 +236,8 @@ const WeatherDashboard = () => {
         <div className="w-full px-4 py-6 sm:px-6 md:px-8 lg:px-10 xl:px-12">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
-            width={500}
-            height={800}
+              width={500}
+              height={800}
               data={weatherData}
               margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
             >

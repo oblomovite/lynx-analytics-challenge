@@ -1,5 +1,11 @@
 # Usage 
 To run the app open a terminal and cd into the project directory and run `npm start`
+Once the app is running the browser will prompt for permission to use location to autofill lat/lang
+If permission is denied or another lat/lang combo is desired simply enter the relevant fields in the inputs
+(I added this as a convience to the user)
+Then use the date picker to select a desired date
+Then use ctrl/cmd click to select one or multiple weather paramters to populate the chart
+If the fetch is succesful a chart should appear with all the selected metrics
 ## Design
 ### State
 Due to time and scope constraints I decided to use simple useState hooks in React to track application state changes. `useReducer` or `React.Context` could have been used as well but given the simplicity of component architecture I opted for I felt it would be unecessisary.
